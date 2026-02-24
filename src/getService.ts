@@ -4,14 +4,6 @@ export type ServiceConstructor<T> = new (payload: Payload) => T
 
 export type GetServiceFn = <T>(Service: ServiceConstructor<T>) => Promise<T>
 
-/**
- * Класс с этим статическим ключом будет зарегистрирован в реестре по строке,
- * а не по ссылке на конструктор — тогда админ- и фронт-бандл получат один инстанс.
- */
-export interface CacheKeyServiceConstructor<T> extends ServiceConstructor<T> {
-  cacheKey: string
-}
-
 /** globalThis — один реестр на процесс даже при двух бандлах (админка / фронт). */
 declare global {
   var __payloadCoreServicesRegistry: Map<
@@ -33,30 +25,27 @@ function getGlobalRegistry(): Map<
 }
 
 function getRegistryKey(Service: ServiceConstructor<unknown>): string | ServiceConstructor<unknown> {
-  const withKey = Service as CacheKeyServiceConstructor<unknown>
-  return typeof withKey.cacheKey === 'string' ? withKey.cacheKey : (Service as ServiceConstructor<unknown>)
+  const name = (Service as Function).name
+  return typeof name === 'string' && name !== '' ? name : (Service as ServiceConstructor<unknown>)
 }
 
 /**
  * Creates a getService function that returns a singleton instance per service class.
- * Uses a single global registry per process. If the same code runs from different
- * bundles (e.g. Payload admin and frontend), the class reference differs — set
- * on your cached service `static cacheKey = 'your-collection-slug'` so both
- * bundles share the same instance and cache.
+ * Registry key = class name (Service.name), e.g. "NaSourceService". No static fields required.
+ * Same class name in different bundles (admin/frontend) → one instance; two different classes
+ * for the same collection (cached vs non-cached) → two keys, two instances.
  *
  * @param getPayloadInstance — app-specific: () => getPayload({ config }) or similar
  * @returns getService(ServiceClass) → Promise<instance>
  *
  * @example
- * // get-service.ts
  * export const getService = createGetService(() => getPayload({ config }))
  *
  * @example
- * // Cached service used from admin + frontend — обязателен cacheKey:
- * export class NaSourcesService extends BaseCollectionServiceCached<...> {
- *   static cacheKey = 'na-sources'
+ * export class NaSourceService extends BaseCollectionServiceCached<...> {
  *   constructor(payload: Payload) { super(payload, 'na-sources') }
  * }
+ * // Key in registry: "NaSourceService"
  */
 export function createGetService(
   getPayloadInstance: () => Promise<Payload>,

@@ -127,13 +127,22 @@ export default buildConfig({
 
 - **`lazy`** — полная коллекция не подгружается заранее. По каждому `getByIdDto(id)` запрашивается только документ с этим `id` (если его ещё нет в кэше) и кэшируется. `getAllDto()` при этом один раз загружает всю коллекцию. Подходит, когда запросы в основном по одному id, а полный список нужен редко.
 
-### Один инстанс для админки и фронта (cacheKey)
+### Один инстанс для админки и фронта
 
-В Payload 3 админка и фронт часто в разных бандлах — класс сервиса дублируется, получаются два синглтона и два кэша. Чтобы был один инстанс и один кэш, задайте на кэширующем сервисе `static cacheKey = 'slug-коллекции'` (тот же, что в `super(payload, 'na-sources')`). Реестр будет вестись по этой строке, а не по ссылке на класс.
+Ключ реестра — **имя класса** (`Service.name`), например `"NaSourceService"`. Дополнительных полей в классе задавать не нужно. Один класс — один инстанс; для одной коллекции могут быть два класса (с кэшем и без) — два разных имени, два инстанса.
+
+```ts
+export class NaSourceService extends BaseCollectionServiceCached<NaSource, NaSourceDto> {
+  constructor(payload: Payload) { super(payload, 'na-sources') }
+}
+// Ключ в реестре: "NaSourceService"
+```
+
+Если бандлер минифицирует имена классов, в разных бандлах ключи могут разойтись — тогда сохраняйте имена классов для серверных модулей с сервисами.
 
 ## API
 
-- **createGetService(getPayloadInstance)** — returns a `getService(ServiceClass)` that resolves to a singleton. Pass your app’s way to get Payload, e.g. `() => getPayload({ config })`.
+- **createGetService(getPayloadInstance)** — returns a `getService(ServiceClass)` that resolves to a singleton. Registry key = class name (`Service.name`).
 - **BaseCollectionService**: `getById`, `getAll`, `getByIdDto`, `getAllDto`.
 - **BaseCollectionServiceCached**: same DTO methods from cache; `invalidateCache()`. Режим загрузки задаётся плагином: `eager` (вся коллекция) или `lazy` (по id по требованию).
 - **BaseCollectionServiceCachedSlug**: `getBySlugCached(slug)`, `getBySlug(slug)` (DB, no cache).
