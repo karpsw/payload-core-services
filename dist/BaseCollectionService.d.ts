@@ -14,6 +14,7 @@ import { BaseService } from './BaseService.js';
 export declare abstract class BaseCollectionService<T, TDto> extends BaseService {
     protected readonly collection: CollectionSlug;
     constructor(payload: Payload, collection: CollectionSlug);
+    protected readonly uid: string;
     protected abstract toDto(doc: T): TDto;
     protected abstract selectFields(): Record<string, boolean>;
     /** Raw: full Payload document by id */

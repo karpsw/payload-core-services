@@ -1,6 +1,6 @@
-import { getCacheTtlSec } from './cacheTtl.js';
-import { getDebug, getCacheLoadingMode } from './pluginOptions.js';
 import { BaseCollectionService } from './BaseCollectionService.js';
+import { getCacheTtlSec } from './cacheTtl.js';
+import { getCacheLoadingMode, getDebug } from './pluginOptions.js';
 export class BaseCollectionServiceCached extends BaseCollectionService {
     /** Eager: все документы коллекции. */
     idMap = new Map();
@@ -21,7 +21,7 @@ export class BaseCollectionServiceCached extends BaseCollectionService {
     }
     log(msg, ...args) {
         if (getDebug()) {
-            const prefix = `[core-services cache ${this.collection}]`;
+            const prefix = `[${this.uid} core-services cache ${this.collection}]`;
             console.log(prefix, msg, ...args);
         }
     }
@@ -197,6 +197,6 @@ export class BaseCollectionServiceCached extends BaseCollectionService {
         if (getDebug()) {
             this.log('getAllDto (lazy, full load), count:', this.lazyCache.size);
         }
-        return Array.from(this.lazyCache.values(), (e) => e.dto);
+        return Array.from(this.lazyCache.values(), e => e.dto);
     }
 }

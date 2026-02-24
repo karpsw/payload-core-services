@@ -15,7 +15,9 @@ export class BaseCollectionService extends BaseService {
     constructor(payload, collection) {
         super(payload);
         this.collection = collection;
+        this.uid = Math.random().toString(36).substring(2, 4);
     }
+    uid;
     /** Raw: full Payload document by id */
     async getById(id) {
         try {
@@ -44,6 +46,6 @@ export class BaseCollectionService extends BaseService {
     }
     async getAllDto() {
         const docs = await this.getAll();
-        return docs.map((doc) => this.toDto(doc));
+        return docs.map(doc => this.toDto(doc));
     }
 }
