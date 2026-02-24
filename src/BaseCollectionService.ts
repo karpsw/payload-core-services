@@ -18,7 +18,7 @@ export abstract class BaseCollectionService<T, TDto> extends BaseService {
 		protected readonly collection: CollectionSlug,
 	) {
 		super(payload)
-		this.uid = Math.random().toString(36).substring(2, 4)
+		this.uid = Math.random().toString(36).substring(2, 5)
 	}
 	protected readonly uid: string
 	protected abstract toDto(doc: T): TDto
