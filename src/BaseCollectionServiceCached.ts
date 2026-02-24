@@ -34,6 +34,8 @@ export abstract class BaseCollectionServiceCached<
 	/** Lazy: по каждому id — DTO и время истечения элемента. */
 	private lazyCache = new Map<number, LazyCacheEntry<TDto>>()
 	private refreshPromise: Promise<void> | null = null
+	/** Lazy: дедупликация — один промис загрузки на id при конкурентных getByIdDto(id). */
+	private loadByIdPromises = new Map<number, Promise<void>>()
 
 	constructor(payload: Payload, collection: CollectionSlug) {
 		super(payload, collection)
@@ -153,7 +155,7 @@ export abstract class BaseCollectionServiceCached<
 		}
 	}
 
-	/** Load single document by ID into lazyCache (lazy mode). */
+	/** Load single document by ID into lazyCache (lazy mode). Called under loadByIdPromise(id) guard. */
 	private async loadById(id: number): Promise<void> {
 		const doc = await this.getById(id)
 		if (doc) {
@@ -166,6 +168,17 @@ export abstract class BaseCollectionServiceCached<
 				}
 			}
 		}
+	}
+
+	/** Returns existing or creates a single load promise for id; removes from map when done. */
+	private loadByIdPromise(id: number): Promise<void> {
+		let p = this.loadByIdPromises.get(id)
+		if (p) return p
+		p = this.loadById(id).finally(() => {
+			this.loadByIdPromises.delete(id)
+		})
+		this.loadByIdPromises.set(id, p)
+		return p
 	}
 
 	/**
@@ -202,13 +215,13 @@ export abstract class BaseCollectionServiceCached<
 			return this.idMap.get(id) ?? null
 		}
 
-		// lazy: проверка истечения только для запрошенного id
+		// lazy: проверка истечения только для запрошенного id; один промис на id при конкурентных вызовах
 		const entry = this.lazyCache.get(id)
 		if (!entry || this.isLazyEntryExpired(entry)) {
 			if (getDebug() && entry) {
 				this.log('cache expired for id:', id)
 			}
-			await this.loadById(id)
+			await this.loadByIdPromise(id)
 		}
 		const cached = this.lazyCache.get(id)
 		if (getDebug()) {

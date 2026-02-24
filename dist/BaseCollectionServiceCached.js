@@ -9,6 +9,8 @@ export class BaseCollectionServiceCached extends BaseCollectionService {
     /** Lazy: по каждому id — DTO и время истечения элемента. */
     lazyCache = new Map();
     refreshPromise = null;
+    /** Lazy: дедупликация — один промис загрузки на id при конкурентных getByIdDto(id). */
+    loadByIdPromises = new Map();
     constructor(payload, collection) {
         super(payload, collection);
     }
@@ -124,7 +126,7 @@ export class BaseCollectionServiceCached extends BaseCollectionService {
             this.log('full collection loaded (lazy), count:', nextLazy.size);
         }
     }
-    /** Load single document by ID into lazyCache (lazy mode). */
+    /** Load single document by ID into lazyCache (lazy mode). Called under loadByIdPromise(id) guard. */
     async loadById(id) {
         const doc = await this.getById(id);
         if (doc) {
@@ -137,6 +139,17 @@ export class BaseCollectionServiceCached extends BaseCollectionService {
                 }
             }
         }
+    }
+    /** Returns existing or creates a single load promise for id; removes from map when done. */
+    loadByIdPromise(id) {
+        let p = this.loadByIdPromises.get(id);
+        if (p)
+            return p;
+        p = this.loadById(id).finally(() => {
+            this.loadByIdPromises.delete(id);
+        });
+        this.loadByIdPromises.set(id, p);
+        return p;
     }
     /**
      * Invalidates cache. Call after create/update/delete.
@@ -169,13 +182,13 @@ export class BaseCollectionServiceCached extends BaseCollectionService {
             }
             return this.idMap.get(id) ?? null;
         }
-        // lazy: проверка истечения только для запрошенного id
+        // lazy: проверка истечения только для запрошенного id; один промис на id при конкурентных вызовах
         const entry = this.lazyCache.get(id);
         if (!entry || this.isLazyEntryExpired(entry)) {
             if (getDebug() && entry) {
                 this.log('cache expired for id:', id);
             }
-            await this.loadById(id);
+            await this.loadByIdPromise(id);
         }
         const cached = this.lazyCache.get(id);
         if (getDebug()) {

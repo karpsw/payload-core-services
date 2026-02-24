@@ -10,6 +10,8 @@ export declare abstract class BaseCollectionServiceCached<T, TDto extends {
     /** Lazy: по каждому id — DTO и время истечения элемента. */
     private lazyCache;
     private refreshPromise;
+    /** Lazy: дедупликация — один промис загрузки на id при конкурентных getByIdDto(id). */
+    private loadByIdPromises;
     constructor(payload: Payload, collection: CollectionSlug);
     /** Eager: кэш всей коллекции истёк. */
     protected get isExpired(): boolean;
@@ -24,8 +26,10 @@ export declare abstract class BaseCollectionServiceCached<T, TDto extends {
     protected refresh(): Promise<void>;
     /** Lazy: загрузка всей коллекции, каждый элемент кэшируется с отдельным TTL. */
     protected refreshLazy(): Promise<void>;
-    /** Load single document by ID into lazyCache (lazy mode). */
+    /** Load single document by ID into lazyCache (lazy mode). Called under loadByIdPromise(id) guard. */
     private loadById;
+    /** Returns existing or creates a single load promise for id; removes from map when done. */
+    private loadByIdPromise;
     /**
      * Invalidates cache. Call after create/update/delete.
      * - Eager: всегда очищает весь кэш коллекции.
