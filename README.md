@@ -6,7 +6,7 @@ Base service layer for **Payload CMS 3+**: collection services, in-memory cache,
 - **BaseCollectionService** — CRUD + DTO mapping for any collection.
 - **BaseCollectionServiceCached** — in-memory cache by `id` (small lookup collections).
 - **BaseCollectionServiceCachedSlug** — cache by `id` and `slug`.
-- **createCacheHooks** — Payload `afterChange` / `afterDelete` hooks to invalidate cache.
+- **createInvalidateCacheHooks** — Payload `afterChange` / `afterDelete` hooks to invalidate cache.
 
 ## Install
 
@@ -38,30 +38,30 @@ import type { Category } from '@/payload-types'
 import { BaseCollectionServiceCachedSlug } from 'payload-core-services'
 
 export type CategoryDto = {
-  id: number
-  title: string
-  slug: string
+	id: number
+	title: string
+	slug: string
 }
 
 export class CategoryService extends BaseCollectionServiceCachedSlug<
-  Category,
-  CategoryDto
+	Category,
+	CategoryDto
 > {
-  constructor(payload: Payload) {
-    super(payload, 'categories')
-  }
+	constructor(payload: Payload) {
+		super(payload, 'categories')
+	}
 
-  protected selectFields() {
-    return { id: true, title: true, slug: true }
-  }
+	protected selectFields() {
+		return { id: true, title: true, slug: true }
+	}
 
-  protected toDto(doc: Category): CategoryDto {
-    return {
-      id: doc.id,
-      title: doc.title,
-      slug: doc.slug,
-    }
-  }
+	protected toDto(doc: Category): CategoryDto {
+		return {
+			id: doc.id,
+			title: doc.title,
+			slug: doc.slug,
+		}
+	}
 }
 ```
 
@@ -69,23 +69,23 @@ export class CategoryService extends BaseCollectionServiceCachedSlug<
 
 ```ts
 import type { CollectionConfig } from 'payload'
-import { createCacheHooks } from 'payload-core-services'
+import { createInvalidateCacheHooks } from 'payload-core-services'
 import { getService, CategoryService } from '@/services'
 
-const { afterChange, afterDelete } = createCacheHooks(() =>
-  getService(CategoryService),
+const { afterChange, afterDelete } = createInvalidateCacheHooks(() =>
+	getService(CategoryService),
 )
 
 export const Categories: CollectionConfig = {
-  slug: 'categories',
-  hooks: {
-    afterChange: [afterChange],
-    afterDelete: [afterDelete],
-  },
-  fields: [
-    { name: 'title', type: 'text', required: true },
-    { name: 'slug', type: 'text', required: true, unique: true },
-  ],
+	slug: 'categories',
+	hooks: {
+		afterChange: [afterChange],
+		afterDelete: [afterDelete],
+	},
+	fields: [
+		{ name: 'title', type: 'text', required: true },
+		{ name: 'slug', type: 'text', required: true, unique: true },
+	],
 }
 ```
 
@@ -102,16 +102,16 @@ const category = await categoryService.getBySlugCached(params.slug)
 - **BaseCollectionService**: `getById`, `getAll`, `getByIdDto`, `getAllDto`.
 - **BaseCollectionServiceCached**: same DTO methods from cache; `invalidateCache()`.
 - **BaseCollectionServiceCachedSlug**: `getBySlugCached(slug)`, `getBySlug(slug)` (DB, no cache).
-- **createCacheHooks(getter)** — pass a function that returns `Promise<{ invalidateCache(): void }>` (e.g. `() => getService(YourService)`).
+- **createInvalidateCacheHooks(getter)** — pass a function that returns `Promise<{ invalidateCache(): void }>` (e.g. `() => getService(YourService)`).
 
 ## When to use which class
 
-| Class                             | Collection size | Slug | Example              |
-|-----------------------------------|-----------------|------|----------------------|
-| BaseService                       | —               | —    | External API service |
-| BaseCollectionService             | Large           | —    | Posts, products      |
-| BaseCollectionServiceCached       | Small           | No   | Tags, sources        |
-| BaseCollectionServiceCachedSlug   | Small           | Yes  | Categories, pages    |
+| Class                           | Collection size | Slug | Example              |
+| ------------------------------- | --------------- | ---- | -------------------- |
+| BaseService                     | —               | —    | External API service |
+| BaseCollectionService           | Large           | —    | Posts, products      |
+| BaseCollectionServiceCached     | Small           | No   | Tags, sources        |
+| BaseCollectionServiceCachedSlug | Small           | Yes  | Categories, pages    |
 
 ## License
 

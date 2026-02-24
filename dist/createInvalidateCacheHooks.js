@@ -7,7 +7,7 @@
  * // category.service.ts uses getService from your app
  * import { getService } from '@/services'
  *
- * export const categoryHooks = createCacheHooks(() => getService(CategoryService))
+ * export const categoryHooks = createInvalidateCacheHooks(() => getService(CategoryService))
  *
  * // collections/Categories.ts
  * import { categoryHooks } from '@/services/category.service'
