@@ -17,7 +17,7 @@
  *   afterDelete: [categoryHooks.afterDelete],
  * }
  */
-export function createCacheHooks(getService) {
+export function createInvalidateCacheHooks(getService) {
     const afterChange = async ({ doc, operation }) => {
         const service = await getService();
         service.invalidateCache();

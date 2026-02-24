@@ -21,7 +21,7 @@ type CacheInvalidatable = {
  *   afterDelete: [categoryHooks.afterDelete],
  * }
  */
-export declare function createCacheHooks(getService: () => Promise<CacheInvalidatable>): {
+export declare function createInvalidateCacheHooks(getService: () => Promise<CacheInvalidatable>): {
     afterChange: CollectionAfterChangeHook;
     afterDelete: CollectionAfterDeleteHook;
 };

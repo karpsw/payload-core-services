@@ -1,4 +1,7 @@
-import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
+import type {
+	CollectionAfterChangeHook,
+	CollectionAfterDeleteHook,
+} from 'payload'
 
 type CacheInvalidatable = { invalidateCache(): void }
 
@@ -21,21 +24,23 @@ type CacheInvalidatable = { invalidateCache(): void }
  *   afterDelete: [categoryHooks.afterDelete],
  * }
  */
-export function createCacheHooks(getService: () => Promise<CacheInvalidatable>): {
-  afterChange: CollectionAfterChangeHook
-  afterDelete: CollectionAfterDeleteHook
+export function createInvalidateCacheHooks(
+	getService: () => Promise<CacheInvalidatable>,
+): {
+	afterChange: CollectionAfterChangeHook
+	afterDelete: CollectionAfterDeleteHook
 } {
-  const afterChange: CollectionAfterChangeHook = async ({ doc, operation }) => {
-    const service = await getService()
-    service.invalidateCache()
-    return doc
-  }
+	const afterChange: CollectionAfterChangeHook = async ({ doc, operation }) => {
+		const service = await getService()
+		service.invalidateCache()
+		return doc
+	}
 
-  const afterDelete: CollectionAfterDeleteHook = async ({ doc }) => {
-    const service = await getService()
-    service.invalidateCache()
-    return doc
-  }
+	const afterDelete: CollectionAfterDeleteHook = async ({ doc }) => {
+		const service = await getService()
+		service.invalidateCache()
+		return doc
+	}
 
-  return { afterChange, afterDelete }
+	return { afterChange, afterDelete }
 }
