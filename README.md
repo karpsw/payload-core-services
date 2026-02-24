@@ -18,7 +18,17 @@ pnpm add github:karpsw/payload-core-services
 
 ## Quick start
 
-1. **Create a cached collection service** (e.g. categories):
+1. **Create a getService helper** in your app (e.g. `src/services/get-service.ts`):
+
+```ts
+import { getPayload } from 'payload'
+import config from '@payload-config'
+import { createGetService } from 'payload-core-services'
+
+export const getService = createGetService(() => getPayload({ config }))
+```
+
+2. **Create a cached collection service** (e.g. categories):
 
 ```ts
 import type { Payload } from 'payload'
@@ -56,7 +66,7 @@ export class CategoryService extends BaseCollectionServiceCachedSlug<
 }
 ```
 
-2. **Register hooks on the collection** (in your collection config):
+3. **Register hooks on the collection** (in your collection config):
 
 ```ts
 import type { CollectionConfig } from 'payload'
@@ -80,7 +90,7 @@ export const Categories: CollectionConfig = {
 }
 ```
 
-3. **Use in app** (e.g. Server Component):
+4. **Use in app** (e.g. Server Component):
 
 ```ts
 const categoryService = await getService(CategoryService)
@@ -89,6 +99,7 @@ const category = await categoryService.getBySlugCached(params.slug)
 
 ## API
 
+- **createGetService(getPayloadInstance)** — returns a `getService(ServiceClass)` that resolves to a singleton. Pass your app’s way to get Payload, e.g. `() => getPayload({ config })`.
 - **BaseCollectionService**: `getById`, `getAll`, `getByIdDto`, `getAllDto`, `toImageDto(img)`.
 - **BaseCollectionServiceCached**: same DTO methods from cache; `invalidateCache()`.
 - **BaseCollectionServiceCachedSlug**: `getBySlugCached(slug)`, `getBySlug(slug)` (DB, no cache).

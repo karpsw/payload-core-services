@@ -1,0 +1,47 @@
+{
+  "name": "payload-core-services",
+  "version": "1.0.0",
+  "description": "Base service layer for Payload CMS 3+: collection services, in-memory cache, cache invalidation hooks",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "pnpm run build"
+  },
+  "peerDependencies": {
+    "payload": ">=3.0.0"
+  },
+  "devDependencies": {
+    "payload": "^3.65.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/karpsw/payload-core-services.git"
+  },
+  "keywords": [
+    "payload",
+    "payloadcms",
+    "plugin",
+    "services",
+    "cache",
+    "hooks"
+  ],
+  "license": "MIT"
+}
