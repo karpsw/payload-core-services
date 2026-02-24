@@ -26,8 +26,12 @@ export declare abstract class BaseCollectionServiceCached<T, TDto extends {
     protected refreshLazy(): Promise<void>;
     /** Load single document by ID into lazyCache (lazy mode). */
     private loadById;
-    /** Invalidates cache. Next request triggers load (full in eager, by id in lazy). Call after create/update/delete. */
-    invalidateCache(): void;
+    /**
+     * Invalidates cache. Call after create/update/delete.
+     * - Eager: всегда очищает весь кэш коллекции.
+     * - Lazy: при передаче id очищает только этот элемент; без id — всю коллекцию.
+     */
+    invalidateCache(id?: number): void;
     getByIdDto(id: number): Promise<TDto | null>;
     getAllDto(): Promise<TDto[]>;
 }

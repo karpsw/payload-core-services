@@ -1,6 +1,6 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload';
 type CacheInvalidatable = {
-    invalidateCache(): void;
+    invalidateCache(id?: number): void;
 };
 /**
  * Creates Payload hooks for automatic cache invalidation.

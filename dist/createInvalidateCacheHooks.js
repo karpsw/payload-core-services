@@ -18,14 +18,16 @@
  * }
  */
 export function createInvalidateCacheHooks(getService) {
-    const afterChange = async ({ doc, operation }) => {
+    const afterChange = async ({ doc }) => {
         const service = await getService();
-        service.invalidateCache();
+        const id = typeof doc.id === 'number' ? doc.id : Number(doc.id);
+        service.invalidateCache(id);
         return doc;
     };
     const afterDelete = async ({ doc }) => {
         const service = await getService();
-        service.invalidateCache();
+        const id = typeof doc.id === 'number' ? doc.id : Number(doc.id);
+        service.invalidateCache(id);
         return doc;
     };
     return { afterChange, afterDelete };

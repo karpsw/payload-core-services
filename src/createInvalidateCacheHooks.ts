@@ -3,7 +3,7 @@ import type {
 	CollectionAfterDeleteHook,
 } from 'payload'
 
-type CacheInvalidatable = { invalidateCache(): void }
+type CacheInvalidatable = { invalidateCache(id?: number): void }
 
 /**
  * Creates Payload hooks for automatic cache invalidation.
@@ -30,15 +30,17 @@ export function createInvalidateCacheHooks(
 	afterChange: CollectionAfterChangeHook
 	afterDelete: CollectionAfterDeleteHook
 } {
-	const afterChange: CollectionAfterChangeHook = async ({ doc, operation }) => {
+	const afterChange: CollectionAfterChangeHook = async ({ doc }) => {
 		const service = await getService()
-		service.invalidateCache()
+		const id = typeof doc.id === 'number' ? doc.id : Number(doc.id)
+		service.invalidateCache(id)
 		return doc
 	}
 
 	const afterDelete: CollectionAfterDeleteHook = async ({ doc }) => {
 		const service = await getService()
-		service.invalidateCache()
+		const id = typeof doc.id === 'number' ? doc.id : Number(doc.id)
+		service.invalidateCache(id)
 		return doc
 	}
 

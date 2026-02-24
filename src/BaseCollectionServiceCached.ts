@@ -168,8 +168,20 @@ export abstract class BaseCollectionServiceCached<
     }
   }
 
-  /** Invalidates cache. Next request triggers load (full in eager, by id in lazy). Call after create/update/delete. */
-  invalidateCache(): void {
+  /**
+   * Invalidates cache. Call after create/update/delete.
+   * - Eager: всегда очищает весь кэш коллекции.
+   * - Lazy: при передаче id очищает только этот элемент; без id — всю коллекцию.
+   */
+  invalidateCache(id?: number): void {
+    const mode = getCacheLoadingMode()
+    if (mode === 'lazy' && id != null) {
+      if (getDebug()) {
+        this.log('invalidated (element):', id)
+      }
+      this.lazyCache.delete(id)
+      return
+    }
     if (getDebug()) {
       this.log('invalidated (collection)')
     }
