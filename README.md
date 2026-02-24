@@ -12,9 +12,11 @@ Base service layer for **Payload CMS 3+**: collection services, in-memory cache,
 
 ```bash
 pnpm add payload-core-services
-# or from GitHub
+# or from GitHub (always get the latest)
 pnpm add github:karpsw/payload-core-services
 ```
+
+**Установка с GitHub:** в репозитории закоммичен каталог `dist/`, чтобы при `pnpm add github:...` пакет приходил уже собранным. После изменений в коде в репозитории плагина выполните `pnpm run build` и закоммитьте `dist/`.
 
 ## Quick start
 
