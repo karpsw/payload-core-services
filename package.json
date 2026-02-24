@@ -1,6 +1,6 @@
 {
 	"name": "payload-core-services",
-	"version": "1.0.5",
+	"version": "1.0.6",
 	"description": "Base service layer for Payload CMS 3+: collection services, in-memory cache, cache invalidation hooks",
 	"type": "module",
 	"main": "./dist/index.js",

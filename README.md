@@ -96,11 +96,42 @@ const categoryService = await getService(CategoryService)
 const category = await categoryService.getBySlugCached(params.slug)
 ```
 
+5. **(Optional) Register the plugin** in Payload config to set cache TTL, loading mode and debug:
+
+```ts
+import { coreServicesPlugin } from 'payload-core-services'
+
+export default buildConfig({
+  plugins: [
+    coreServicesPlugin({
+      cacheTtlSec: 600,        // TTL кэша в секундах (по умолчанию 600)
+      debug: false,            // true — логи в консоль (запросы, инвалидация, истечение кэша)
+      cacheLoadingMode: 'eager', // 'eager' | 'lazy' — см. ниже
+    }),
+  ],
+  // ...
+})
+```
+
+### Опции плагина (CoreServicesPluginOptions)
+
+| Опция | Тип | По умолчанию | Описание |
+| ----- | --- | ------------ | -------- |
+| `cacheTtlSec` | `number` | `600` | Время жизни кэша в секундах для `BaseCollectionServiceCached` / `BaseCollectionServiceCachedSlug`. |
+| `debug` | `boolean` | `false` | При `true` в консоль выводятся: какой элемент запрошен (`getByIdDto` id, hit/miss), инвалидация коллекции, истечение кэша, загрузка (eager — вся коллекция, lazy — по id). |
+| `cacheLoadingMode` | `'eager' \| 'lazy'` | `'eager'` | Режим загрузки кэша (см. ниже). |
+
+### Режимы загрузки кэша (cacheLoadingMode)
+
+- **`eager`** (по умолчанию) — при первом обращении (или после истечения TTL / инвалидации) загружается **вся коллекция** и кладётся в память. Все последующие `getByIdDto` / `getAllDto` обслуживаются из кэша. Подходит для небольших справочников.
+
+- **`lazy`** — полная коллекция не подгружается заранее. По каждому `getByIdDto(id)` запрашивается только документ с этим `id` (если его ещё нет в кэше) и кэшируется. `getAllDto()` при этом один раз загружает всю коллекцию. Подходит, когда запросы в основном по одному id, а полный список нужен редко.
+
 ## API
 
 - **createGetService(getPayloadInstance)** — returns a `getService(ServiceClass)` that resolves to a singleton. Pass your app’s way to get Payload, e.g. `() => getPayload({ config })`.
 - **BaseCollectionService**: `getById`, `getAll`, `getByIdDto`, `getAllDto`.
-- **BaseCollectionServiceCached**: same DTO methods from cache; `invalidateCache()`.
+- **BaseCollectionServiceCached**: same DTO methods from cache; `invalidateCache()`. Режим загрузки задаётся плагином: `eager` (вся коллекция) или `lazy` (по id по требованию).
 - **BaseCollectionServiceCachedSlug**: `getBySlugCached(slug)`, `getBySlug(slug)` (DB, no cache).
 - **createInvalidateCacheHooks(getter)** — pass a function that returns `Promise<{ invalidateCache(): void }>` (e.g. `() => getService(YourService)`).
 
