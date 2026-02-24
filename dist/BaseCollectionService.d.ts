@@ -1,11 +1,5 @@
 import type { CollectionSlug, Payload } from 'payload';
 import { BaseService } from './BaseService.js';
-export interface IEntityImageDto {
-    src: string | null;
-    alt: string | null;
-    width: number | null;
-    height: number | null;
-}
 /**
  * Base class for services that work with a single Payload collection.
  * Provides basic CRUD and DTO mapping.
@@ -22,11 +16,6 @@ export declare abstract class BaseCollectionService<T, TDto> extends BaseService
     constructor(payload: Payload, collection: CollectionSlug);
     protected abstract toDto(doc: T): TDto;
     protected abstract selectFields(): Record<string, boolean>;
-    /**
-     * Maps Payload Media (or any object with url/alt/width/height) to DTO.
-     * Use inside toDto() for Media fields.
-     */
-    protected toImageDto(img: unknown): IEntityImageDto | null;
     /** Raw: full Payload document by id */
     getById(id: number): Promise<T | null>;
     getAll(): Promise<T[]>;

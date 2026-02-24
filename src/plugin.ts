@@ -1,17 +1,24 @@
 import type { Config } from 'payload'
+import { setCacheTtlSec } from './cacheTtl.js'
 
 export interface CoreServicesPluginOptions {
-  /** Cache TTL in ms (optional; base classes use 10 min by default). */
-  cacheTtlMs?: number
+  /** Cache TTL in seconds for BaseCollectionServiceCached (default 600). */
+  cacheTtlSec?: number
 }
+
+const DEFAULT_CACHE_TTL_SEC = 600
 
 /**
  * Payload plugin for payload-core-services.
- * Currently a no-op: base classes and createCacheHooks are used as a library.
- * Options reserved for future use (e.g. global cache TTL).
+ * Sets global cache TTL used by BaseCollectionServiceCached / BaseCollectionServiceCachedSlug.
  */
 export const coreServicesPlugin =
-  (_options?: CoreServicesPluginOptions) =>
+  (options?: CoreServicesPluginOptions) =>
   (incomingConfig: Config): Config => {
+    if (options?.cacheTtlSec != null) {
+      setCacheTtlSec(options.cacheTtlSec)
+    } else {
+      setCacheTtlSec(DEFAULT_CACHE_TTL_SEC)
+    }
     return { ...incomingConfig }
   }

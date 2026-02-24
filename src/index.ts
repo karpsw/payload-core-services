@@ -1,6 +1,5 @@
 export { BaseService } from './BaseService.js'
 export { BaseCollectionService } from './BaseCollectionService.js'
-export type { IEntityImageDto } from './BaseCollectionService.js'
 export { BaseCollectionServiceCached } from './BaseCollectionServiceCached.js'
 export { BaseCollectionServiceCachedSlug } from './BaseCollectionServiceCachedSlug.js'
 export { createCacheHooks } from './createCacheHooks.js'

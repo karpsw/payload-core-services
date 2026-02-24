@@ -1,8 +1,15 @@
+import { setCacheTtlSec } from './cacheTtl.js';
+const DEFAULT_CACHE_TTL_SEC = 600;
 /**
  * Payload plugin for payload-core-services.
- * Currently a no-op: base classes and createCacheHooks are used as a library.
- * Options reserved for future use (e.g. global cache TTL).
+ * Sets global cache TTL used by BaseCollectionServiceCached / BaseCollectionServiceCachedSlug.
  */
-export const coreServicesPlugin = (_options) => (incomingConfig) => {
+export const coreServicesPlugin = (options) => (incomingConfig) => {
+    if (options?.cacheTtlSec != null) {
+        setCacheTtlSec(options.cacheTtlSec);
+    }
+    else {
+        setCacheTtlSec(DEFAULT_CACHE_TTL_SEC);
+    }
     return { ...incomingConfig };
 };

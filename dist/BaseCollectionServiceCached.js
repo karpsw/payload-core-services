@@ -1,5 +1,5 @@
+import { getCacheTtlSec } from './cacheTtl.js';
 import { BaseCollectionService } from './BaseCollectionService.js';
-const TTL_MS = 10 * 60 * 1000; // 10 min
 /**
  * Extends BaseCollectionService with in-memory DTO cache.
  *
@@ -60,7 +60,7 @@ export class BaseCollectionServiceCached extends BaseCollectionService {
                 nextMap.set(dto.id, dto);
         }
         this.idMap = nextMap;
-        this.expiresAt = Date.now() + TTL_MS;
+        this.expiresAt = Date.now() + getCacheTtlSec() * 1000;
     }
     /** Invalidates cache. Next request triggers full refresh. Call after create/update/delete. */
     invalidateCache() {

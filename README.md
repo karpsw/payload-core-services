@@ -35,10 +35,7 @@ export const getService = createGetService(() => getPayload({ config }))
 ```ts
 import type { Payload } from 'payload'
 import type { Category } from '@/payload-types'
-import {
-  BaseCollectionServiceCachedSlug,
-  type IEntityImageDto,
-} from 'payload-core-services'
+import { BaseCollectionServiceCachedSlug } from 'payload-core-services'
 
 export type CategoryDto = {
   id: number
@@ -102,7 +99,7 @@ const category = await categoryService.getBySlugCached(params.slug)
 ## API
 
 - **createGetService(getPayloadInstance)** — returns a `getService(ServiceClass)` that resolves to a singleton. Pass your app’s way to get Payload, e.g. `() => getPayload({ config })`.
-- **BaseCollectionService**: `getById`, `getAll`, `getByIdDto`, `getAllDto`, `toImageDto(img)`.
+- **BaseCollectionService**: `getById`, `getAll`, `getByIdDto`, `getAllDto`.
 - **BaseCollectionServiceCached**: same DTO methods from cache; `invalidateCache()`.
 - **BaseCollectionServiceCachedSlug**: `getBySlugCached(slug)`, `getBySlug(slug)` (DB, no cache).
 - **createCacheHooks(getter)** — pass a function that returns `Promise<{ invalidateCache(): void }>` (e.g. `() => getService(YourService)`).

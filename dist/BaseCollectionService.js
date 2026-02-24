@@ -16,21 +16,6 @@ export class BaseCollectionService extends BaseService {
         super(payload);
         this.collection = collection;
     }
-    /**
-     * Maps Payload Media (or any object with url/alt/width/height) to DTO.
-     * Use inside toDto() for Media fields.
-     */
-    toImageDto(img) {
-        if (!img || typeof img !== 'object')
-            return null;
-        const m = img;
-        return {
-            src: m.url ?? null,
-            alt: m.alt ?? null,
-            width: m.width ?? null,
-            height: m.height ?? null,
-        };
-    }
     /** Raw: full Payload document by id */
     async getById(id) {
         try {
