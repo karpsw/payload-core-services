@@ -127,6 +127,10 @@ export default buildConfig({
 
 - **`lazy`** — полная коллекция не подгружается заранее. По каждому `getByIdDto(id)` запрашивается только документ с этим `id` (если его ещё нет в кэше) и кэшируется. `getAllDto()` при этом один раз загружает всю коллекцию. Подходит, когда запросы в основном по одному id, а полный список нужен редко.
 
+### Один инстанс для админки и фронта (cacheKey)
+
+В Payload 3 админка и фронт часто в разных бандлах — класс сервиса дублируется, получаются два синглтона и два кэша. Чтобы был один инстанс и один кэш, задайте на кэширующем сервисе `static cacheKey = 'slug-коллекции'` (тот же, что в `super(payload, 'na-sources')`). Реестр будет вестись по этой строке, а не по ссылке на класс.
+
 ## API
 
 - **createGetService(getPayloadInstance)** — returns a `getService(ServiceClass)` that resolves to a singleton. Pass your app’s way to get Payload, e.g. `() => getPayload({ config })`.
