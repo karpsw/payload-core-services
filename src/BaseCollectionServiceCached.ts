@@ -118,7 +118,7 @@ export abstract class BaseCollectionServiceCached<
 
 		const nextMap = new Map<number, TDto>()
 		for (const doc of docs) {
-			const dto = this.toDto(doc as T)
+			const dto = await this.toDto(doc as T)
 			if (dto) nextMap.set(dto.id, dto)
 		}
 		this.idMap = nextMap
@@ -144,7 +144,7 @@ export abstract class BaseCollectionServiceCached<
 		const now = Date.now()
 		const nextLazy = new Map<number, LazyCacheEntry<TDto>>()
 		for (const doc of docs) {
-			const dto = this.toDto(doc as T)
+			const dto = await this.toDto(doc as T)
 			if (dto) {
 				nextLazy.set(dto.id, { dto, expiresAt: now + ttlMs })
 			}
@@ -159,7 +159,7 @@ export abstract class BaseCollectionServiceCached<
 	private async loadById(id: number): Promise<void> {
 		const doc = await this.getById(id)
 		if (doc) {
-			const dto = this.toDto(doc)
+			const dto = await this.toDto(doc)
 			if (dto) {
 				const expiresAt = Date.now() + getCacheTtlSec() * 1000
 				this.lazyCache.set(dto.id, { dto, expiresAt })
